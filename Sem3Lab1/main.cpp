@@ -15,6 +15,10 @@
 4. Написать функцию наподобие функции из задачи 1), только операция над элементами списка
 задается функциональным объектом. */
 
+/*
+Написать функцию ToString, которая список своих разнотипных аргументов преобразует в
+строковой значение (типа std::string). */
+
 #include <iostream>
 #include <cstdarg>
 #include <map>
@@ -22,6 +26,9 @@
 #include <algorithm>
 #include <initializer_list>
 #include <vector>
+#include <string>
+#include <sstream>
+
 using namespace std;
 
 namespace Task1
@@ -129,13 +136,21 @@ namespace Task4
 	}
 }
 
+namespace Task5
+{
+	template< typename ... T >
+	std::string ToString(const string& separator, const T& ... t)
+	{
+		std::ostringstream oss;
+		int a[] = { 0, ((void)(oss << t << separator), 0) ... };
+		return oss.str();
+	}
+}
 
 template<typename ... Args>
 void executeTask(int number, Args... args)
 {
 	tuple<int, double> t;
-	double res = 0.;
-
 
 	switch (number)
 	{
@@ -174,6 +189,7 @@ int main()
 	//executeTask(2, 7, 2.5, 1, 0.22, 88,0.1);
 	//executeTask(3, 7.1, 8, 4.2, 1, 4.8);
 	//executeTask(4, 1, 2, 1, 4);
+	//cout << Task5::ToString(" ", "One", 2,"three",4.4) << endl;
 	system("pause");
 	return 0;
 }
