@@ -43,6 +43,14 @@ namespace Task1
 	{
 		return sum(args...) + s;
 	}
+
+	template<typename ... T>
+	double sumNew(T ...t)
+	{
+		double s = 0.;
+		int dummy[] = {((void)(s += t,0),0)...};
+		return s;
+	}
 }
 
 namespace Task2
@@ -59,6 +67,13 @@ namespace Task2
 		return min(m, t...);
 	}
 
+
+	template<typename ... T>
+	double minNew(T...t)
+	{
+		auto data = {static_cast<double>(t)...};
+		return *std::min_element(data.begin(), data.end());
+	}
 }
 
 namespace Task3
@@ -142,7 +157,7 @@ namespace Task5
 	std::string ToString(const string& separator, const T& ... t)
 	{
 		std::ostringstream oss;
-		int a[] = { 0, ((void)(oss << t << separator), 0) ... };
+		int a[] = { ((void)(oss << t << separator), 1) ... };
 		return oss.str();
 	}
 }
@@ -156,12 +171,14 @@ void executeTask(int number, Args... args)
 	{
 	case 1:
 		cout << "Task1 : " << Task1::sum(args...) << endl;
+		cout << "Task1 new : " << Task1::sumNew(args...) << endl;
 		break;
 
 	case 2:
 		if (sizeof...(args) > 0)
 		{
 			cout << "Task2 : " << Task2::min(args...) << endl;
+			cout << "Task2 new : " << Task2::minNew(args...) << endl;
 		}
 		else
 			cout << "Task2 : invalid param list length" << endl;
@@ -185,7 +202,7 @@ void executeTask(int number, Args... args)
 
 int main()
 {
-	//executeTask(1, 2, 4, 5);
+	//executeTask(1, 2, 4, 5,6.6);
 	//executeTask(2, 7, 2.5, 1, 0.22, 88,0.1);
 	//executeTask(3, 7.1, 8, 4.2, 1, 4.8);
 	//executeTask(4, 1, 2, 1, 4);
