@@ -87,12 +87,45 @@ namespace Task3
 
 namespace Task4
 {
-	typedef double(*FuncObj)(double, double);
+	//typedef double(*FuncObj)(double, double);
 
-	template<class FuncObj, typename ...T>
-	double operation(FuncObj, T...t)
+	struct Multiplicator
 	{
-		return 0.0;
+		double operator()(double a, double b)
+		{
+			return a * b;
+		}
+		double neutral = 1;
+	};
+
+	struct Sub
+	{
+		double operator()(double a, double b)
+		{
+			return a - b;
+		}
+		double neutral = 0;
+	};
+
+	struct Sum
+	{
+		double operator()(double a, double b)
+		{
+			return a + b;
+		}
+		double neutral = 0;
+	};
+
+	template<typename FuncObj, typename ...T>
+	double operation(FuncObj f, double a, T...t)
+	{
+		return f(a, operation(f, t...));
+	}
+
+	template<typename FuncObj, typename ...T>
+	double operation(FuncObj f)
+	{
+		return f(f.neutral, f.neutral);
 	}
 }
 
@@ -101,6 +134,9 @@ template<typename ... Args>
 void executeTask(int number, Args... args)
 {
 	tuple<int, double> t;
+	double res = 0.;
+
+
 	switch (number)
 	{
 	case 1:
@@ -118,11 +154,13 @@ void executeTask(int number, Args... args)
 
 	case 3:
 		t = Task3::getTup(args...);
-		cout << "int : " << std::get<0>(t) << ", double : " << std::get<1>(t) << endl;
+		cout << "Task3 , int : " << std::get<0>(t) << ", double : " << std::get<1>(t) << endl;
 		break;
 	case 4:
+		cout << "Task4 , mul: " << Task4::operation(Task4::Multiplicator{}, args...) << endl;
+		cout << "Task4 , sub: " << Task4::operation(Task4::Sub{}, args...) << endl;
+		cout << "Task4 , add: " << Task4::operation(Task4::Sum{}, args...) << endl;
 		break;
-
 
 	default:
 		cout << "Invalid task number , try again" << endl;
@@ -134,8 +172,8 @@ int main()
 {
 	//executeTask(1, 2, 4, 5);
 	//executeTask(2, 7, 2.5, 1, 0.22, 88,0.1);
-	executeTask(3, 7.1, 8, 4.2, 1, 4.8);
-	//executeTask(4, 1, 2, 3, 4);
+	//executeTask(3, 7.1, 8, 4.2, 1, 4.8);
+	//executeTask(4, 1, 2, 1, 4);
 	system("pause");
 	return 0;
 }
