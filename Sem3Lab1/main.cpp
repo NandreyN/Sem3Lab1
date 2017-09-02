@@ -19,6 +19,16 @@
 Написать функцию ToString, которая список своих разнотипных аргументов преобразует в
 строковой значение (типа std::string). */
 
+/*
+6. По заданному типу и кортежу типа tuple<…> найти первый элемент, тип которого совпадает с
+заданным*/
+
+/*
+7. По заданному типу и кортежу типа tuple<…> вернуть кортеж типа tuple<…>, поля которого –
+все поля из исходного кортежа, тип которых совпадает с заданным.
+*/
+
+#include <stdio.h>
 #include <iostream>
 #include <cstdarg>
 #include <map>
@@ -28,6 +38,7 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include <tuple>
 
 using namespace std;
 
@@ -48,7 +59,7 @@ namespace Task1
 	double sumNew(T ...t)
 	{
 		double s = 0.;
-		int dummy[] = {((void)(s += t,0),0)...};
+		int dummy[] = { ((void)(s += t,0),0)... };
 		return s;
 	}
 }
@@ -71,7 +82,7 @@ namespace Task2
 	template<typename ... T>
 	double minNew(T...t)
 	{
-		auto data = {static_cast<double>(t)...};
+		auto data = { static_cast<double>(t)... };
 		return *std::min_element(data.begin(), data.end());
 	}
 }
@@ -162,6 +173,24 @@ namespace Task5
 	}
 }
 
+namespace Task6
+{
+	template<typename S, typename ...T>
+	S find(T...t)
+	{
+		return std::get<S>(std::make_tuple(t...));
+	}
+}
+
+namespace Task7
+{
+	template<typename S, typename ... T>
+	void f(const tuple<T...> &a)
+	{
+		
+	}
+}
+
 template<typename ... Args>
 void executeTask(int number, Args... args)
 {
@@ -207,6 +236,7 @@ int main()
 	//executeTask(3, 7.1, 8, 4.2, 1, 4.8);
 	//executeTask(4, 1, 2, 1, 4);
 	//cout << Task5::ToString(" ", "One", 2,"three",4.4) << endl;
-	system("pause");
+	//cout << Task6::find<double>(2, 3, 4.222, 'f', "ddsada") << endl;
+	Task7::f<int>(make_tuple(1, 2.2, 'c'));
 	return 0;
 }
