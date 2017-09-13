@@ -55,15 +55,6 @@ namespace Task1
 	{
 		return [](auto a, auto b) {return a + b; } (s, sum(args...));
 	}
-
-	template<typename ... T>
-	double sumNew(T ...t)
-	{
-		double s = 0.;
-		auto f = [&t..., &s](){int dummy[] = { ((void)(s += t,0),0)... }; };
-		f();
-		return s;
-	}
 }
 
 namespace Task2
@@ -79,117 +70,84 @@ namespace Task2
 	{
 		return [](auto a, auto b) {return a < b ? a : b; }(d, min(t...));
 	}
-
-
-	template<typename ... T>
-	auto minNew(T...t)
-	{
-		auto data = { static_cast<double>(t)... };
-		return *std::min_element(data.begin(), data.end());
-	}
 }
 
 namespace Task3
 {
-	tuple<int, double> _tup;
-
-	template<typename ... T>
-	void sumTypes(double a, T ... tail)
+	template<class U, class T>
+	struct equal
 	{
-		std::get<1>(_tup) += a;
-		sumTypes(tail...);
-	}
+		const static bool value = false;
+	};
 
-
-	template<typename ... T>
-	void sumTypes(int a, T ... tail)
+	template<class U>
+	struct equal<U, U>
 	{
-		std::get<0>(_tup) += a;
-		sumTypes(tail...);
-	}
+		const static bool value = true;
+	};
 
-	void sumTypes()
-	{}
-
-
-	template<typename U, typename ... T>
-	tuple<int, double> getTup(U u, T ...t)
+	template<class ... T>
+	auto getTuple(const T& ... args)
 	{
-		// call overloaded functions
-		sumTypes(t...);
-		return _tup;
+		tuple<int, double> tuple;
+		auto f = [&tuple](auto arg)
+		{
+			bool isInteger = (equal<decltype(arg), int>::value) ? true : false;
+			if (isInteger)
+			{
+				std::get<int>(tuple) += arg;
+				return;
+			}
+			bool isDouble = (equal<decltype(arg), double>::value) ? true : false;
+			if (isDouble)
+				std::get<double>(tuple) += arg;
+		};
+		int dummy[] = {(f(args),0)...};
+		return tuple;
 	}
 }
+
 
 namespace Task4
-{
-	//typedef double(*FuncObj)(double, double);
-
-	struct Multiplicator
-	{
-		double operator()(double a, double b)
-		{
-			return a * b;
-		}
-		double neutral = 1;
-	};
-
-	struct Sub
-	{
-		double operator()(double a, double b)
-		{
-			return a - b;
-		}
-		double neutral = 0;
-	};
-
-	struct Sum
-	{
-		double operator()(double a, double b)
-		{
-			return a + b;
-		}
-		double neutral = 0;
-	};
-
-	template<typename FuncObj, typename ...T>
-	double operation(FuncObj f, double a, T...t)
-	{
-		return f(a, operation(f, t...));
-	}
-
-	template<typename FuncObj, typename ...T>
-	double operation(FuncObj f)
-	{
-		return f(f.neutral, f.neutral);
-	}
-}
-
-namespace Task5
 {
 	template< typename ... T >
 	std::string ToString(const string& separator, const T& ... t)
 	{
-		return [&separator,&t...]()
+		return[&separator, &t...]()
 		{
 			std::ostringstream oss;
-			int a[] = { ((void)(oss << t << separator), 0) ... };
-			return oss.str();
+			int dummy[] = { ((void)(oss << t << separator), 0) ... };
+			string result = oss.str();
+			return result.substr(0, result.size() - separator.size());
 		}();
 	}
 }
 
+template<class ... T>
+void callTask(int num, const T & ... t)
+{
+	tuple<int, double> tup;
+	switch(num)
+	{
+	case 1:
+		cout << "Task1, Sum. Parameters : (" << Task4::ToString(" ", t...) <<  " ), result is : " << Task1::sum(t...) << endl;
+		break;
+	case 2:
+		cout << "Task2, Minimum. Parameters : (" << Task4::ToString(" ", t...) << " ), result is : " << Task2::min(t...) << endl;
+		break;
+	case 3:
+		tup = Task3::getTuple(t...);
+		cout << "Task3, Tuple. Parameters : (" << Task4::ToString(" ", t...) << " ), result is : Int = "<<std::get<int>(tup)<<", Double = " <<
+			std::get<double>(tup) << endl;
+		break;
+	case 4:
+		cout << "Task4, ToString. Parameters : (" << Task4::ToString(";", t...) << " ), result as string : " << Task4::ToString("!!", t...) << endl;
+		break;
+	}
+}
 
 int main()
 {
-	//cout << Task1::sum(1, 2, 3, 4, 5.8) << endl << Task1::sumNew(1, 2, 3, 4, 5.8) << endl;
-	//cout << Task2::min(4, 55, 6, 7, 1.22, -2.69) << endl << Task2::minNew(4, 55, 6, 7, 1.22, -2.69) << endl;
-	//tuple<int, double> tp = Task3::getTup(2, 7, 2.5, 1, 0.22, 88, 0.1);
-	//cout <<"INt : " << std::get<0>(tp)<< " Double : " << std::get<1>(tp)<< endl;
-	//executeTask(3, 7.1, 8, 4.2, 1, 4.8);
-	//executeTask(4, 1, 2, 1, 4);
-	cout << Task5::ToString(" ", "One", 2, "three", 4.4) << endl;
-	//cout << Task6::find(3,20.55,5,"dasdasd",8, "oiipuiuoi") << endl;
-
+	callTask(4, 2, 3, 4, 5, 0.8);
 	return 0;
 }
