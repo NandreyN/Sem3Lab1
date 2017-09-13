@@ -44,43 +44,45 @@ using namespace std;
 
 namespace Task1
 {
-	double sum(double s)
+	template<typename T>
+	T sum(T t)
 	{
-		return s;
+		return t;
 	}
 
-	template<typename ... Args>
-	double sum(double s, Args... args)
+	template<typename T, typename ... Args>
+	auto sum(T s, Args... args)
 	{
-		return sum(args...) + s;
+		return [](auto a, auto b) {return a + b; } (s, sum(args...));
 	}
 
 	template<typename ... T>
 	double sumNew(T ...t)
 	{
 		double s = 0.;
-		int dummy[] = { ((void)(s += t,0),0)... };
+		auto f = [&t..., &s](){int dummy[] = { ((void)(s += t,0),0)... }; };
+		f();
 		return s;
 	}
 }
 
 namespace Task2
 {
-	double min(double d1, double d2)
+	template<typename F>
+	auto min(F d)
 	{
-		return d1 < d2 ? d1 : d2;
+		return d;
 	}
 
-	template<typename ...T>
-	double min(double d1, double d2, T...t)
+	template<typename F, typename ...T>
+	auto min(F d, T...t)
 	{
-		double m = d1 < d2 ? d1 : d2;
-		return min(m, t...);
+		return [](auto a, auto b) {return a < b ? a : b; }(d, min(t...));
 	}
 
 
 	template<typename ... T>
-	double minNew(T...t)
+	auto minNew(T...t)
 	{
 		auto data = { static_cast<double>(t)... };
 		return *std::min_element(data.begin(), data.end());
@@ -90,32 +92,33 @@ namespace Task2
 namespace Task3
 {
 	tuple<int, double> _tup;
-	template<typename ... T>
-
-	tuple<int, double> getTup(T ...t)
-	{
-		// call overloaded functions
-		sum(t...);
-		return _tup;
-	}
 
 	template<typename ... T>
-	void sum(double a, T ... tail)
+	void sumTypes(double a, T ... tail)
 	{
 		std::get<1>(_tup) += a;
-		sum(tail...);
+		sumTypes(tail...);
 	}
 
 
 	template<typename ... T>
-	void sum(int a, T ... tail)
+	void sumTypes(int a, T ... tail)
 	{
 		std::get<0>(_tup) += a;
-		sum(tail...);
+		sumTypes(tail...);
 	}
 
-	void sum()
+	void sumTypes()
 	{}
+
+
+	template<typename U, typename ... T>
+	tuple<int, double> getTup(U u, T ...t)
+	{
+		// call overloaded functions
+		sumTypes(t...);
+		return _tup;
+	}
 }
 
 namespace Task4
@@ -167,76 +170,26 @@ namespace Task5
 	template< typename ... T >
 	std::string ToString(const string& separator, const T& ... t)
 	{
-		std::ostringstream oss;
-		int a[] = { ((void)(oss << t << separator), 1) ... };
-		return oss.str();
-	}
-}
-
-namespace Task6
-{
-	template<typename S, typename ...T>
-	S find(T...t)
-	{
-		return std::get<S>(std::make_tuple(t...));
-	}
-}
-
-namespace Task7
-{
-	template<typename S, typename ... T>
-	void f(const tuple<T...> &a)
-	{
-		
-	}
-}
-
-template<typename ... Args>
-void executeTask(int number, Args... args)
-{
-	tuple<int, double> t;
-
-	switch (number)
-	{
-	case 1:
-		cout << "Task1 : " << Task1::sum(args...) << endl;
-		cout << "Task1 new : " << Task1::sumNew(args...) << endl;
-		break;
-
-	case 2:
-		if (sizeof...(args) > 0)
+		return [&separator,&t...]()
 		{
-			cout << "Task2 : " << Task2::min(args...) << endl;
-			cout << "Task2 new : " << Task2::minNew(args...) << endl;
-		}
-		else
-			cout << "Task2 : invalid param list length" << endl;
-		break;
-
-	case 3:
-		t = Task3::getTup(args...);
-		cout << "Task3 , int : " << std::get<0>(t) << ", double : " << std::get<1>(t) << endl;
-		break;
-	case 4:
-		cout << "Task4 , mul: " << Task4::operation(Task4::Multiplicator{}, args...) << endl;
-		cout << "Task4 , sub: " << Task4::operation(Task4::Sub{}, args...) << endl;
-		cout << "Task4 , add: " << Task4::operation(Task4::Sum{}, args...) << endl;
-		break;
-
-	default:
-		cout << "Invalid task number , try again" << endl;
-		break;
+			std::ostringstream oss;
+			int a[] = { ((void)(oss << t << separator), 0) ... };
+			return oss.str();
+		}();
 	}
 }
+
 
 int main()
 {
-	//executeTask(1, 2, 4, 5,6.6);
-	//executeTask(2, 7, 2.5, 1, 0.22, 88,0.1);
+	//cout << Task1::sum(1, 2, 3, 4, 5.8) << endl << Task1::sumNew(1, 2, 3, 4, 5.8) << endl;
+	//cout << Task2::min(4, 55, 6, 7, 1.22, -2.69) << endl << Task2::minNew(4, 55, 6, 7, 1.22, -2.69) << endl;
+	//tuple<int, double> tp = Task3::getTup(2, 7, 2.5, 1, 0.22, 88, 0.1);
+	//cout <<"INt : " << std::get<0>(tp)<< " Double : " << std::get<1>(tp)<< endl;
 	//executeTask(3, 7.1, 8, 4.2, 1, 4.8);
 	//executeTask(4, 1, 2, 1, 4);
-	//cout << Task5::ToString(" ", "One", 2,"three",4.4) << endl;
-	//cout << Task6::find<double>(2, 3, 4.222, 'f', "ddsada") << endl;
-	Task7::f<int>(make_tuple(1, 2.2, 'c'));
+	cout << Task5::ToString(" ", "One", 2, "three", 4.4) << endl;
+	//cout << Task6::find(3,20.55,5,"dasdasd",8, "oiipuiuoi") << endl;
+
 	return 0;
 }
