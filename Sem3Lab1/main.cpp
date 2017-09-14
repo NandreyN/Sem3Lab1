@@ -102,7 +102,7 @@ namespace Task3
 			if (isDouble)
 				std::get<double>(tuple) += arg;
 		};
-		int dummy[] = {(f(args),0)...};
+		int dummy[] = { (f(args),0)... };
 		return tuple;
 	}
 }
@@ -111,7 +111,7 @@ namespace Task3
 namespace Task4
 {
 	template< typename ... T >
-	std::string ToString(const string& separator, const T& ... t)
+	std::string ToString(const string& separator, const T ... t)
 	{
 		return[&separator, &t...]()
 		{
@@ -127,27 +127,27 @@ template<class ... T>
 void callTask(int num, const T & ... t)
 {
 	tuple<int, double> tup;
-	switch(num)
+	switch (num)
 	{
 	case 1:
-		cout << "Task1, Sum. Parameters : (" << Task4::ToString(" ", t...) <<  " ), result is : " << Task1::sum(t...) << endl;
+		cout << "Task1, Sum. Parameters : (" << Task4::ToString(" ", t...) << " ), result is : " << Task1::sum(t...) << endl;
 		break;
 	case 2:
 		cout << "Task2, Minimum. Parameters : (" << Task4::ToString(" ", t...) << " ), result is : " << Task2::min(t...) << endl;
 		break;
 	case 3:
 		tup = Task3::getTuple(t...);
-		cout << "Task3, Tuple. Parameters : (" << Task4::ToString(" ", t...) << " ), result is : Int = "<<std::get<int>(tup)<<", Double = " <<
+		cout << "Task3, Tuple. Parameters : (" << Task4::ToString(" ", t...) << " ), result is : Int = " << std::get<int>(tup) << ", Double = " <<
 			std::get<double>(tup) << endl;
-		break;
-	case 4:
-		cout << "Task4, ToString. Parameters : (" << Task4::ToString(";", t...) << " ), result as string : " << Task4::ToString("!!", t...) << endl;
 		break;
 	}
 }
 
 int main()
 {
-	callTask(4, 2, 3, 4, 5, 0.8);
+	/*callTask(1, '0', 2, 3, 8.99); // 0 - 48
+	callTask(2, 2, 1.99, sqrt(2), 'a');
+	callTask(3, 14, 20, 0.25, 10.5, 80.9,10); // 44 . 91.65*/
+	//cout << Task4::ToString("__", 2566, 'a', "str", 1.222) << endl;
 	return 0;
 }
